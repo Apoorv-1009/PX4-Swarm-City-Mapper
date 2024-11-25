@@ -8,12 +8,12 @@ Phase 0 encompasses the project proposal, detailing the objectives and outlining
 Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_Nkyce7AI6Z4n4CMd4ubZWPyqKw/edit?usp=sharing)
 
 # Phase 1
-As a part of phase 1 of this project, we successfully launched 20 Iris quadcopters in a custom city world in Gazebo. Each drone operates independently, and we are able to retrieve critical telemetry data through ROS 2 topics, including local position, IMU readings, and velocity. These topics enable real-time monitoring and control of the swarm, providing the foundations for advanced functionalities like collaborative mapping, trajectory planning, and obstacle avoidance in the next phase of the project. </br>
+As a part of phase 1 of this project, we successfully launched **20 Iris quadcopters** in a custom city world in Gazebo. Each drone operates independently, and we are able to retrieve critical telemetry data through ROS 2 topics, including local position, IMU readings, and velocity. These topics enable real-time monitoring and control of the swarm, providing the foundations for advanced functionalities like collaborative mapping, trajectory planning, and obstacle avoidance in the next phase of the project. </br>
 <img src="screenshots/image.png" alt="Description of the screenshot" width="500"/>
 
 All documents pertaining to this phase can be found under `UML/initial` <br>
-Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_Nkyce7AI6Z4n4CMd4ubZWPyqKw/edit?usp=sharing)
-
+Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_Nkyce7AI6Z4n4CMd4ubZWPyqKw/edit?usp=sharing) <br>
+Product Tracking Sheet: [Link](https://docs.google.com/spreadsheets/d/1d-81s3KT0pe81IKDCRShrfuD6AH13XsJ9yQLLJY3_XI/edit?usp=sharing)
 
 # Setting up the Environment
 
@@ -131,11 +131,11 @@ colcon build
 # Running the Simulation
 To launch the city simulation in Gazebo with 5 drones (default):
 ```bash
-ros2 launch final_project multi_drone_controller.launch.py
+ros2 launch px4_swarm_controller multi_drone_controller.launch.py
 ```
 To launch `n` drones (max 255):
 ```bash
-ros2 launch final_project multi_drone_controller.launch.py nb_vehicles:=n
+ros2 launch px4_swarm_controller multi_drone_controller.launch.py nb_vehicles:=n
 ```
 
 If the simulation environment gives issues while spawning, try killing the gzserver and gzclient
