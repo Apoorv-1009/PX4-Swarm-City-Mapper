@@ -1,3 +1,5 @@
 build/
 install/
 log/
+src/px4_swarm_contoller/libs/Control/Controlcpp.txt
+src/px4_swarm_contoller/libs/Control/Controlhpp.txt

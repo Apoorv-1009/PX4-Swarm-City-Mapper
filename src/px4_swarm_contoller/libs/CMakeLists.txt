@@ -1,3 +1,1 @@
-add_subdirectory(DataCapture)
-add_subdirectory(Coordination)
-add_subdirectory(Reconstruction)
+add_subdirectory(Control)

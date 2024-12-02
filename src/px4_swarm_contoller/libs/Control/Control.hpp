@@ -1,0 +1,125 @@
+/**
+ * @file Control.hpp
+ * @author Apoorv Thapliyal
+ * @brief C++ Header file for the Control class
+ * @version 0.1
+ * @date 2024-12-01
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
+#pragma once
+
+#include <iostream>
+#include <chrono>
+#include <vector>
+#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/qos.hpp"
+#include "rclcpp/duration.hpp"
+#include <px4_msgs/srv/vehicle_command.hpp>
+#include <px4_msgs/msg/vehicle_status.hpp>
+#include <px4_msgs/msg/trajectory_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_control_mode.hpp>
+#include <px4_msgs/msg/offboard_control_mode.hpp>
+
+using namespace px4_msgs::msg;
+
+/**
+ * @brief Namespace for the Control class
+ * 
+ */
+namespace ctrl{
+
+class Control : public rclcpp::Node{
+
+    private:
+
+        /**
+         * @brief Offboard control mode publisher
+         * 
+         */
+        rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_control_mode_publisher_;
+
+        /**
+         * @brief Trajectory setpoint publisher
+         * 
+         */
+        rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_setpoint_publisher_;
+
+        /**
+         * @brief Vehicle command publisher
+         * 
+         */
+        rclcpp::Publisher<VehicleCommand>::SharedPtr vehicle_command_publisher_;
+
+        /**
+         * @brief Common synced timestamp
+         * 
+         */
+        std::atomic<uint64_t> timestamp_;
+
+        /**
+         * @brief Counter for number of setpoints published
+         * 
+         */
+        int offboard_setpoint_counter_;
+
+        /**
+         * @brief Timer for publishing commands and setpoints
+         * 
+         */
+        rclcpp::TimerBase::SharedPtr timer_;
+
+    public:
+
+        /**
+         * @brief Construct a new Control object
+         * 
+         */
+        Control();
+
+        /**
+         * @brief Function to publish offboard control mode
+         * 
+         * @param pub_ Publisher for offboard control mode
+         */
+        void publish_offboard_control_mode(rclcpp::Publisher<OffboardControlMode>::SharedPtr pub_);
+
+        /**
+         * @brief Function to publish vehicle setpoint
+         * 
+         * @param pub_ Publisher for vehicle setpoint
+         * @param x x-coordinate
+         * @param y y-coordinate
+         * @param z z-coordinate
+         * @param yaw yaw angle (-PI to PI)
+         */
+        void publish_trajectory_setpoint(rclcpp::Publisher<TrajectorySetpoint>::SharedPtr pub_, float x, float y, float z, float yaw);
+
+        /**
+         * @brief Function to arm the PX4
+         * 
+         * @param pub_ Publisher for vehicle command
+         */
+        void arm(rclcpp::Publisher<VehicleCommand>::SharedPtr pub_);
+        
+        /**
+         * @brief Function to change to offboard mode
+         * 
+         * @param pub_ Publisher for offboard control mode
+         */
+        void offboard_mode(rclcpp::Publisher<VehicleCommand>::SharedPtr pub_);
+
+        /**
+         * @brief Function to publish vehicle command
+         * 
+         * @param pub_ Publisher for vehicle command
+         * @param command Command to be published
+         * @param param1 PX4 command parameter 1
+         * @param param2 PX4 command parameter 2
+         */
+        void publish_vehicle_command(rclcpp::Publisher<VehicleCommand>::SharedPtr pub_, uint16_t command, float param1=0.0, float param2=0.0);
+};
+
+}

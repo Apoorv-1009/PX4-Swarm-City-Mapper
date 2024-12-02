@@ -15,13 +15,29 @@ All documents pertaining to this phase can be found under `UML/initial` <br>
 Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_Nkyce7AI6Z4n4CMd4ubZWPyqKw/edit?usp=sharing) <br>
 Product Tracking Sheet: [Link](https://docs.google.com/spreadsheets/d/1d-81s3KT0pe81IKDCRShrfuD6AH13XsJ9yQLLJY3_XI/edit?usp=sharing)
 
-# Setting up the Environment
+# Setting up the Workspace
 
 ## Dependencies
 Following are the major dependencies for this project, the PX4 setup tools would install any minor dependencies
 ```bash
 ROS2 Humble
 Gazebo-Classic
+```
+
+Install the following packages:
+```bash
+sudo apt install gnome-terminal
+sudo apt install dbus-x11
+sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-plugins
+
+# HIGHLY RECOMMENDED: Add this to your ~/.zshrc or ~/.bashrc
+# For ~/.zshrc:
+echo "export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:/opt/ros/humble/lib" >> ~/.zshrc
+source ~/.zshrc
+# For ~/.bashrc:
+echo "export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:/opt/ros/humble/lib" >> ~/.bashrc
+source ~/.bashrc
+
 ```
 
 ## Setting up PX4 Swarm City Mapper
@@ -54,6 +70,41 @@ cd PX4-Autopilot/
 
 # Build the SITL software
 make px4_sitl
+```
+## Setting up the ROS-GZ bridge
+For getting camera topics, such as pointcloud, we need to setup a bridge between `Gazebo-Classic` and `ROS2`:
+```bash
+# Create a workspace for building the ROS-GZ bridge
+mkdir -p ~/ros2_gz_ws/src
+
+# Switch to this directory
+cd ~/ros2_gz_ws/src
+
+# Clone the ROS-GZ bridge repo
+git clone https://github.com/gazebosim/ros_gz.git
+
+# Switch to the cloned repo
+cd ros_gz/
+
+# Checkout to the Humble branch for ROS2 humble
+git checkout humble
+
+# Switch back to the root of this workspace
+cd ~/ros2_gz_ws
+
+# Build the workspace
+colcon build 
+
+# Source the workspace
+source /install/setup.zsh
+
+# HIGHLY RECOMMENDED: Add this to your ~/.zshrc or ~/.bashrc
+# For ~/.zshrc:
+echo "source /ros2_gz_ws/install/setup.zsh" >> ~/.zshrc
+source ~/.zshrc
+# For ~/.bashrc:
+echo "source /ros2_gz_ws/install/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ## Setting up Micro XRCE-DDS Agent & Client
@@ -93,7 +144,6 @@ MicroXRCEAgent udp4 -p 8888
 The `PX4 msgs` folder is needed to define custom message types for communication between PX4 and ROS, enabling seamless integration and data exchange.
 
 ```bash
-
 # Change directory to this workspace
 cd ~/PX4-Swarm-City-Mapper/src/
 
@@ -107,13 +157,15 @@ cd ~/PX4-Swarm-City-Mapper/
 colcon build --packages-select px4_msgs
 
 # Source the workspace
-source install/local_setup.bash
+source install/local_setup.zsh # For zsh users
+source install/local_setup.bash # For bash users
 
-# HIGHLY RECOMMENDED: Add this to your ~/.zshrc/~/.bashrc, as it allows you to echo the ros2 topics from anywhere
-echo "source PX4-Swarm-City-Mapper/install/local_setup.bash" >> ~/.zshrc
+# HIGHLY RECOMMENDED: Add this to your ~/.zshrc or ~/.bashrc
+# For ~/.zshrc:
+echo "source /PX4-Swarm-City-Mapper/install/local_setup.zsh" >> ~/.zshrc
 source ~/.zshrc
 # For ~/.bashrc:
-echo "source PX4-Swarm-City-Mapper/install/local_setup.bash" >> ~/.bashrc
+echo "source /PX4-Swarm-City-Mapper/install/local_setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 

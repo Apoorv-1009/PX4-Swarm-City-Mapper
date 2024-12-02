@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(final_project)
+project(px4_swarm_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,30 +12,30 @@ find_package(gazebo_ros REQUIRED)
 find_package(px4_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
-# Install the launch files
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}/
+# add subdirectories
+add_subdirectory(libs)
+# include_directories(libs)
+
+# add executables
+add_executable(arm src/arming.cpp)
+ament_target_dependencies(arm px4_msgs rclcpp std_msgs)
+target_link_libraries(arm Control)
+
+
+# install executables
+install(TARGETS
+  arm
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY libs
+# Install directories
+install(DIRECTORY 
+  launch
+  worlds
+  libs
+  src
   DESTINATION share/${PROJECT_NAME}/
 )
-
-install(DIRECTORY src
-  DESTINATION share/${PROJECT_NAME}/
-)
-# install(DIRECTORY models
-#   DESTINATION share/${PROJECT_NAME}/
-# )
-
-install(DIRECTORY worlds
-  DESTINATION share/${PROJECT_NAME}/
-)
-
-
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
