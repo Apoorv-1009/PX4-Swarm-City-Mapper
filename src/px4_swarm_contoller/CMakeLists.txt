@@ -1,9 +1,27 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.14)
 project(px4_swarm_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
+
+# GoogleTest requires at least C++14
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# declares a dependency on GoogleTest which is downloaded from GitHub
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# Enables testing for this directory and below
+enable_testing()
+include(GoogleTest)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -11,10 +29,12 @@ find_package(rclcpp REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(px4_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(ament_cmake_gtest REQUIRED)
+find_package(catch_ros2 REQUIRED)
 
 # add subdirectories
 add_subdirectory(libs)
-# include_directories(libs)
+add_subdirectory(test)
 
 # add executables
 add_executable(arm src/arming.cpp)
@@ -33,20 +53,21 @@ install(DIRECTORY
   launch
   worlds
   libs
+  test
   src
   DESTINATION share/${PROJECT_NAME}/
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   # the following line skips the linter which checks for copyrights
+#   # comment the line when a copyright and license is added to all source files
+#   set(ament_cmake_copyright_FOUND TRUE)
+#   # the following line skips cpplint (only works in a git repo)
+#   # comment the line when this package is in a git repo and when
+#   # a copyright and license is added to all source files
+#   set(ament_cmake_cpplint_FOUND TRUE)
+#   ament_lint_auto_find_test_dependencies()
+# endif()
 
 ament_package()

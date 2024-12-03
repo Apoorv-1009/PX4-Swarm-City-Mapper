@@ -1,0 +1,86 @@
+##############################################################################
+#
+# GitGub CI workflow syntax spec:
+#    https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+#
+# CodeCov github action setup:
+#    https://github.com/codecov/codecov-action
+#
+# CodeCov badge setup:
+#    https://docs.codecov.com/docs/status-badges
+#
+# version 1.1
+#
+# Docker method.  Use pre-build ROS 2 docker image.
+#
+# Important Note, Docker Hub has restricted the number of image pull
+# requests.
+#
+# See # https://docs.docker.com/docker-hub/download-rate-limit
+#
+# This means, if the you runs GitHub CI a lot, it will fail when you
+# run more than 100 times within 6 hours.  And then, you will have to
+# wait for a almost a day to be able to pull the docker image again.
+#
+# The alternative is to use GitHub Docker Registry or GitHub Pacakges
+# (ghcr.io) instead of Docker Hub.
+#
+# https://www.youtube.com/watch?v=U7TY_qUD8yA&ab_channel=AndrewSchmelyun
+# https://github.com/aschmelyun/github-actions-docker-phpunit
+# https://github.com/aschmelyun/github-actions-docker-compile
+##############################################################################
+
+name: Run Unit Test and Upload Coverage Report
+on:
+  # Triggered whenever push to main 
+  push:
+    branches: [ "main" ]
+
+  # Triggered whenever a pull request is created on main
+  pull_request:
+    branches: [ "main" ]
+    types: [opened]
+
+  # Allow manual trigger
+  workflow_dispatch:
+    
+jobs:
+  build-run-upload:
+    # Create a container of the latest Ubuntu, other values could be
+    # ubuntu-latest, ubuntu-22.04, etc.
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash       # specify bash for use with docker container
+    container:
+      image: osrf/ros:humble-desktop # use ROS Humble from docker hub repository
+    steps:
+      # We want to use GitHub CI checkout version 3 to check out our branch
+      - uses: actions/checkout@v3
+      
+      # Install some system pacakges
+      - name: Install build packages
+        run: |
+          sudo apt update
+          sudo apt install -y doxygen lcov gcovr pandoc
+          source /opt/ros/humble/setup.bash
+          sudo apt install -y ros-${ROS_DISTRO}-catch-ros2
+          
+      # Run all unit test, integration test, and generate combined coverage report
+      - name: Build, run unit test, and generate coverage report
+        run: |
+          ./do-tests-and-coverage.bash
+          ./do-docs.bash
+          cat build/test_coverage_merged.info
+
+      # Upload coverage result to CodeCov
+      - name: Upload coverage result to CodeCov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # required (must add token in your github repo)
+          files: ${{github.workspace}}/build/test_coverage_merged.info
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)      
+          disable_search: true # optional (default = false)
+          plugin: none         # optional (xcode, gcov, pycoverage)
+          

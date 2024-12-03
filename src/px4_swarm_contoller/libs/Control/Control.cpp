@@ -39,7 +39,7 @@ ctrl::Control::Control() : Node("Control"){
             arm(vehicle_command_publisher_);
         }
 
-        std::cout << "Publishing setpoint " << offboard_setpoint_counter_ << std::endl;
+        // std::cout << "Publishing setpoint " << offboard_setpoint_counter_ << std::endl;
 
         // The offboard control mode needs to be paired with a trajectory setpoint
         publish_offboard_control_mode(offboard_control_mode_publisher_);
