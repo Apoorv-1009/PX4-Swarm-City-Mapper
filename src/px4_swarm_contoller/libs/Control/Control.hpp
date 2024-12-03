@@ -36,22 +36,40 @@ class Control : public rclcpp::Node{
     private:
 
         /**
-         * @brief Offboard control mode publisher
+         * @brief Create an alias for the OffboardControlMode Publisher type
          * 
          */
-        rclcpp::Publisher<OffboardControlMode>::SharedPtr offboard_control_mode_publisher_;
+        using OffboardControlModePublisher = rclcpp::Publisher<OffboardControlMode>::SharedPtr;
 
         /**
-         * @brief Trajectory setpoint publisher
+         * @brief Create an alias for the TrajectorySetpoint Publisher type
          * 
          */
-        rclcpp::Publisher<TrajectorySetpoint>::SharedPtr trajectory_setpoint_publisher_;
+        using TrajectorySetpointPublisher = rclcpp::Publisher<TrajectorySetpoint>::SharedPtr;
 
         /**
-         * @brief Vehicle command publisher
+         * @brief Create an alias for the VehicleCommand Publisher type
          * 
          */
-        rclcpp::Publisher<VehicleCommand>::SharedPtr vehicle_command_publisher_;
+        using VehicleCommandPublisher = rclcpp::Publisher<VehicleCommand>::SharedPtr;
+
+        /**
+         * @brief Vector of OffboardControlMode publishers
+         * 
+         */
+        std::vector<OffboardControlModePublisher> offboard_control_mode_publishers_;
+
+        /**
+         * @brief Vector of TrajectorySetpoint publishers
+         * 
+         */
+        std::vector<TrajectorySetpointPublisher> trajectory_setpoint_publishers_;
+
+        /**
+         * @brief Vector of VehicleCommand publishers
+         * 
+         */
+        std::vector<VehicleCommandPublisher> vehicle_command_publishers_;
 
         /**
          * @brief Common synced timestamp
@@ -70,6 +88,12 @@ class Control : public rclcpp::Node{
          * 
          */
         rclcpp::TimerBase::SharedPtr timer_;
+
+        /**
+         * @brief Number of drones in the swarm
+         * 
+         */
+        int num_drones_;
 
     public:
 

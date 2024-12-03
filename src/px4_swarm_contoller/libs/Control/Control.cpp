@@ -1,7 +1,7 @@
 /**
  * @file Control.cpp
- * @author your name (you@domain.com)
- * @brief 
+ * @author Apoorv Thapliyal
+ * @brief C++ Source file for the Control class
  * @version 0.1
  * @date 2024-12-01
  * 
@@ -9,41 +9,58 @@
  * 
  */
 
- #include "Control.hpp"
-#include <iostream>
+#include "Control.hpp"
 
 ctrl::Control::Control() : Node("Control"){
-
-    // Initialize the offboard control mode publisher
-    offboard_control_mode_publisher_ = this->create_publisher<OffboardControlMode>("/fmu/in/offboard_control_mode", 10);
-
-    // Initialize the trajectory setpoint publisher
-    trajectory_setpoint_publisher_ = this->create_publisher<TrajectorySetpoint>("/fmu/in/trajectory_setpoint", 10);
-
-    // Initialize the vehicle command publisher
-    vehicle_command_publisher_ = this->create_publisher<VehicleCommand>("/fmu/in/vehicle_command", 10);
 
     // Initialize the setpoint counter
     offboard_setpoint_counter_ = 0;
 
+    // Initialize the number of drones in the swarm
+    num_drones_ = 5;
+
     std::cout << "Control node initialized" << std::endl;
+
+    // Initalize the publishers for every drone in the swarm
+    for(int i=1; i<=num_drones_; i++){
+
+        // String of the offboard control mode topic
+        std::string offboard_control_mode_topic = "/px4_" + std::to_string(i) + "/fmu/in/offboard_control_mode";
+        
+        // String of the trajectory setpoint topic
+        std::string trajectory_setpoint_topic = "/px4_" + std::to_string(i) + "/fmu/in/trajectory_setpoint";
+        
+        // String of the vehicle command topic
+        std::string vehicle_command_topic = "/px4_" + std::to_string(i) + "/fmu/in/vehicle_command";
+
+        // Publisher for the offboard control mode
+        offboard_control_mode_publishers_.push_back(this->create_publisher<OffboardControlMode>(offboard_control_mode_topic, 10));
+        
+        // Publisher for the trajectory setpoint
+        trajectory_setpoint_publishers_.push_back(this->create_publisher<TrajectorySetpoint>(trajectory_setpoint_topic, 10));
+        
+        // Publisher for the vehicle command
+        vehicle_command_publishers_.push_back(this->create_publisher<VehicleCommand>(vehicle_command_topic, 10));
+    }
+
 
     // Define a timer callback
     auto timer_callback = [this]() -> void{
 
         if(offboard_setpoint_counter_ == 10) {
-            // Change to offboard mode after 10 setpoints
-            offboard_mode(vehicle_command_publisher_);
-
-            // Arm the drone
-            arm(vehicle_command_publisher_);
+            // Switch to offboard mode and arm the drones
+            for(int i=0; i<num_drones_; i++){
+                arm(vehicle_command_publishers_[i]);
+                offboard_mode(vehicle_command_publishers_[i]);
+            }
         }
 
-        // std::cout << "Publishing setpoint " << offboard_setpoint_counter_ << std::endl;
-
         // The offboard control mode needs to be paired with a trajectory setpoint
-        publish_offboard_control_mode(offboard_control_mode_publisher_);
-        publish_trajectory_setpoint(trajectory_setpoint_publisher_, 0.0, 0.0, -5.0, 0.0);
+        // Publish setpoint as a 5m altitude hold 
+        for(int i=0; i<num_drones_; i++){
+            publish_offboard_control_mode(offboard_control_mode_publishers_[i]);
+            publish_trajectory_setpoint(trajectory_setpoint_publishers_[i], 0.0, 0.0, -5.0, 0.0);
+        }
 
         // Stop the counter after reaching 11
         if(offboard_setpoint_counter_ < 11) {
@@ -91,7 +108,7 @@ void ctrl::Control::publish_vehicle_command(rclcpp::Publisher<VehicleCommand>::S
     msg.param1 = param1;
     msg.param2 = param2;
     msg.command = command;
-    msg.target_system = 1;
+    msg.target_system = 0;
     msg.target_component = 1;
     msg.source_system = 1;
     msg.source_component = 1;

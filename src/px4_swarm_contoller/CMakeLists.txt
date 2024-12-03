@@ -23,6 +23,24 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 include(GoogleTest)
 
+# Enable code coverage
+if(COVERAGE)
+  find_program(LCOV_EXEC lcov)
+  find_program(GENHTML_EXEC genhtml)
+
+  if(LCOV_EXEC AND GENHTML_EXEC)
+    add_custom_target(test_coverage
+      COMMAND ${LCOV_EXEC} --capture --directory ${CMAKE_BINARY_DIR} --output-file coverage.info
+      COMMAND ${GENHTML_EXEC} --output-directory coverage_report coverage.info
+      COMMENT "Generating test coverage report"
+      VERBATIM
+    )
+  else()
+    message(WARNING "lcov or genhtml not found. Coverage report generation will not work.")
+  endif()
+endif()
+
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -69,5 +87,9 @@ install(DIRECTORY
 #   set(ament_cmake_cpplint_FOUND TRUE)
 #   ament_lint_auto_find_test_dependencies()
 # endif()
+
+install(PROGRAMS
+  scripts/generate_coverage_report.bash
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
