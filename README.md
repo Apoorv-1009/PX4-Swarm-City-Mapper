@@ -144,7 +144,7 @@ MicroXRCEAgent udp4 -p 8888
 To spawn our custom world, copy the `grid_plan.world` file into the `PX4-Autopilot` worlds directory
 ```bash
 # Copy the world to the PX4-Autopilot worlds/ directory
-cp ~/PX4-Swarm-City-Mapper/src/px4_swarm_contoller/worlds/grid_plan.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
+cp ~/PX4-Swarm-City-Mapper/src/px4_swarm_controller/worlds/grid_plan.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
 ```
 
 We also need to change the `sitl_multiple_run.sh` file to spawn drones at the positions as described by the `config.yaml` file.
@@ -185,9 +185,24 @@ If the simulation environment gives issues while spawning, try killing the gzser
 ```bash
 killall gzserver gzclient
 ```
-If you want to change the number of drones being spawned, their initial positions and the trajectory they follow, this can be done by adjusting the `config.yaml` located in `src/px4_swarm_contoller/config/config.yaml`. 
+If you want to change the number of drones being spawned, their initial positions and the trajectory they follow, this can be done by adjusting the `config.yaml` located in `src/px4_swarm_controller/config/config.yaml`. 
 
 To launch the drones and take sweeps of the city:
 ```bash
 ros2 run px4_swarm_controller arm 
+```
+
+# Running L1 tests
+```bash
+# Switch to the root of the directory
+cd ~/PX4-Swarm-City-Mapper/
+
+# Build with Debug and Coverage ON
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
+
+# Locally get test coverage
+cmake --build build --target coverage
+
+# Open coverage report in your browser
+open build/coverage_report/index.html
 ```

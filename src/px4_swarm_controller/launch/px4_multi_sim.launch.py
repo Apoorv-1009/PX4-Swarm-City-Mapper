@@ -24,7 +24,7 @@ def generate_launch_description():
     # Extract information from configuration files
 
     # Swarm information
-    with open('src/px4_swarm_contoller/config/config.yaml', 'r') as swarm_file:
+    with open('src/px4_swarm_controller/config/config.yaml', 'r') as swarm_file:
         swarm_config_data = yaml.safe_load(swarm_file)
     nb_drones, initial_poses, initial_poses_dict = parse_swarm_config(swarm_config_data)
     swarm_file.close()

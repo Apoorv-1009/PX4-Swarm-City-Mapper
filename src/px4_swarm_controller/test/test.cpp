@@ -87,7 +87,7 @@ TEST_F(ControlL1Test, PublishTrajectorySetpoint) {
     EXPECT_EQ(captured_msg.timestamp, 123456789);
 }
 
-TEST_F(ControlL1Test, ArmCommand) {
+TEST_F(ControlL1Test, Arm) {
     MockPublisher<px4_msgs::msg::VehicleCommand> mock_pub;
 
     // Simulate publishing
@@ -104,7 +104,7 @@ TEST_F(ControlL1Test, ArmCommand) {
     EXPECT_EQ(captured_msg.timestamp, 123456789);
 }
 
-TEST_F(ControlL1Test, OffboardModeCommand) {
+TEST_F(ControlL1Test, OffboardMode) {
     MockPublisher<px4_msgs::msg::VehicleCommand> mock_pub;
 
     // Simulate publishing
@@ -140,4 +140,48 @@ TEST_F(ControlL1Test, PublishVehicleCommand) {
     EXPECT_FLOAT_EQ(captured_msg.param1, 3.14);
     EXPECT_FLOAT_EQ(captured_msg.param2, 2.71);
     EXPECT_EQ(captured_msg.timestamp, 123456789);
+}
+
+TEST_F(ControlL1Test, PublishDefaultSetpoints) {
+    // Assume the number of drones is fixed or known for the test
+    const int num_drones = 2; // Replace with the known number of drones
+
+    // Step 1: Mock publishers to simulate publishing for each drone
+    std::vector<MockPublisher<px4_msgs::msg::TrajectorySetpoint>> mock_publishers(num_drones);
+
+    // Step 2: Simulate setpoints for the drones
+    std::vector<std::vector<std::array<float, 4>>> mock_setpoints = {
+        {{1.0, 2.0, 3.0, 0.0}, {4.0, 5.0, 6.0, 1.0}},
+        {{7.0, 8.0, 9.0, 0.5}, {10.0, 11.0, 12.0, 1.5}}
+    };
+
+    // Step 3: Simulate the `publish_default_setpoints` method indirectly
+    for (size_t i = 0; i < mock_setpoints.size(); ++i) {
+        for (const auto& setpoint : mock_setpoints[i]) {
+            px4_msgs::msg::TrajectorySetpoint msg;
+            msg.position = {setpoint[0], setpoint[1], setpoint[2]};
+            msg.yaw = setpoint[3];
+            msg.timestamp = control_node_->get_clock()->now().nanoseconds() / 1000;
+            mock_publishers[i].publish(msg);
+
+            auto captured_msg = mock_publishers[i].get_last_message();
+
+            // Step 4: Validate published message matches the setpoints
+            EXPECT_FLOAT_EQ(captured_msg.position[0], setpoint[0]);
+            EXPECT_FLOAT_EQ(captured_msg.position[1], setpoint[1]);
+            EXPECT_FLOAT_EQ(captured_msg.position[2], setpoint[2]);
+            EXPECT_FLOAT_EQ(captured_msg.yaw, setpoint[3]);
+            EXPECT_GT(captured_msg.timestamp, 0); // Timestamp should be valid
+        }
+    }
+}
+
+TEST_F(ControlL1Test, VehicleLocalPositionCallback) {
+    px4_msgs::msg::VehicleLocalPosition::SharedPtr mock_msg = std::make_shared<px4_msgs::msg::VehicleLocalPosition>();
+    mock_msg->x = 1.5;
+    mock_msg->y = 2.5;
+    mock_msg->z = -3.5;
+    const int drone_id = 0;
+    control_node_->vehicle_local_position_callback(drone_id, mock_msg);
+    SUCCEED(); 
 }

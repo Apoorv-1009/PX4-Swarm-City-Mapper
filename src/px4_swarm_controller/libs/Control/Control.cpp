@@ -16,7 +16,7 @@ ctrl::Control::Control() : Node("Control"){
     std::cout << "Control node initialized" << std::endl;
 
     // Load the YAML file
-    YAML::Node config = YAML::LoadFile("src/px4_swarm_contoller/config/config.yaml");
+    YAML::Node config = YAML::LoadFile("../../install/px4_swarm_controller/share/px4_swarm_controller/config/config.yaml");
 
     // Get the number of drones in the swarm
     num_drones_ = config["num_drones"].as<int>();
