@@ -140,27 +140,33 @@ cd Micro-XRCE-DDS-Agent
 MicroXRCEAgent udp4 -p 8888
 ```
 
-## Setting up PX4 msgs
-The `PX4 msgs` folder is needed to define custom message types for communication between PX4 and ROS, enabling seamless integration and data exchange.
-
+## Setting up the Simulation environment
+To spawn our custom world, copy the `grid_plan.world` file into the `PX4-Autopilot` worlds directory
 ```bash
-# Change directory to this workspace
-cd ~/PX4-Swarm-City-Mapper/src/
+# Copy the world to the PX4-Autopilot worlds/ directory
+cp ~/PX4-Swarm-City-Mapper/src/px4_swarm_contoller/worlds/grid_plan.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
+```
 
-# Clone the PX4 msgs package
-git clone https://github.com/PX4/px4_msgs.git
-
-# Switch to the root of this workspace
+We also need to change the `sitl_multiple_run.sh` file to spawn drones at the positions as described by the `config.yaml` file.
+```bash
 cd ~/PX4-Swarm-City-Mapper/
+mv -i sitl_multiple_run.sh ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_multiple_run.sh
+```
 
-# Build the px4_msgs package
-colcon build --packages-select px4_msgs
+# Building the Environment
+To build the workspace, go to the root of this package and run colcon build
+```bash
+cd ~/PX4-Swarm-City-Mapper/
+colcon build
 
-# Source the workspace
-source install/local_setup.zsh # For zsh users
-source install/local_setup.bash # For bash users
+# Make sure to source the workspace
+source install/setup.bash   # bash users
+source install/setup.zshrc  # zsh users
+```
 
-# HIGHLY RECOMMENDED: Add this to your ~/.zshrc or ~/.bashrc
+The `px4 msgs` folder is needed to define custom message types for communication between PX4 and ROS, enabling seamless integration and data exchange. <br>
+This package must be sourced and included in every ROS2 PX4 workspace, it is highly recommended to add this to your `~/.zshrc` or `~/.bashrc`
+```bash
 # For ~/.zshrc:
 echo "source /PX4-Swarm-City-Mapper/install/local_setup.zsh" >> ~/.zshrc
 source ~/.zshrc
@@ -169,28 +175,19 @@ echo "source /PX4-Swarm-City-Mapper/install/local_setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## Setting up the Simulation environment
-To spawn our custom world, copy the `postoffice.world` file into the `PX4-Autopilot` worlds directory
-```bash
-# Copy the world to the PX4-Autopilot worlds/ directory
-cp ~/PX4-Swarm-City-Mapper/src/px4_swarm_contoller/worlds/postoffice.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
-
-# Finally, build the whole workspace
-cd ~/PX4-Swarm-City-Mapper/
-colcon build
-```
-
 # Running the Simulation
-To launch the city simulation in Gazebo with 5 drones (default):
+To launch the city simulation in Gazebo with 20 drones (default):
 ```bash
-ros2 launch px4_swarm_controller multi_drone_controller.launch.py
-```
-To launch `n` drones (max 255):
-```bash
-ros2 launch px4_swarm_controller multi_drone_controller.launch.py nb_vehicles:=n
+ros2 launch px4_swarm_controller px4_multi_sim_launch.launch.py
 ```
 
 If the simulation environment gives issues while spawning, try killing the gzserver and gzclient
 ```bash
 killall gzserver gzclient
+```
+If you want to change the number of drones being spawned, their initial positions and the trajectory they follow, this can be done by adjusting the `config.yaml` located in `src/px4_swarm_contoller/config/config.yaml`. 
+
+To launch the drones and take sweeps of the city:
+```bash
+ros2 run px4_swarm_controller arm 
 ```
