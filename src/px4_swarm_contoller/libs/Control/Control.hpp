@@ -12,8 +12,13 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <yaml-cpp/yaml.h>
+#include <yaml-cpp/node/node.h>
 #include <chrono>
 #include <vector>
+#include <array>
 #include <rclcpp/rclcpp.hpp>
 #include "rclcpp/qos.hpp"
 #include "rclcpp/duration.hpp"
@@ -22,6 +27,7 @@
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_control_mode.hpp>
 #include <px4_msgs/msg/offboard_control_mode.hpp>
+#include <px4_msgs/msg/vehicle_local_position.hpp>
 
 using namespace px4_msgs::msg;
 
@@ -54,6 +60,12 @@ class Control : public rclcpp::Node{
         using VehicleCommandPublisher = rclcpp::Publisher<VehicleCommand>::SharedPtr;
 
         /**
+         * @brief Create an alias for the VehicleLocalPosition Subscriber type
+         * 
+         */
+        using VehicleLocalPositionSubscriber = rclcpp::Subscription<VehicleLocalPosition>::SharedPtr;
+
+        /**
          * @brief Vector of OffboardControlMode publishers
          * 
          */
@@ -70,6 +82,12 @@ class Control : public rclcpp::Node{
          * 
          */
         std::vector<VehicleCommandPublisher> vehicle_command_publishers_;
+
+        /**
+         * @brief Vector of VehicleLocalPosition subscribers
+         * 
+         */
+        std::vector<VehicleLocalPositionSubscriber> vehicle_local_position_subscribers_;
 
         /**
          * @brief Common synced timestamp
@@ -94,6 +112,42 @@ class Control : public rclcpp::Node{
          * 
          */
         int num_drones_;
+
+        /**
+         * @brief Number of setpoints for each drone
+         * 
+         */
+        int num_setpoints_;
+
+        /**
+         * @brief Boolean to check if the offboard mode and arm command has been sent
+         * 
+         */
+        bool offboard_arm_sent_;
+
+        /**
+         * @brief Vector to store each drones setpoints
+         * @details Each drone has a vector of setpoints, each setpoint is a 4D array [x, y, z, yaw]. It is assumed that each drone has the same number of setpoints
+         */
+        std::vector<std::vector<std::array<float, 4>>> setpoints_;
+
+        /**
+         * @brief Counter to keep track of the current setpoint being published
+         * 
+         */
+        int setpoint_counter_;
+
+        /**
+         * @brief Vector to store the local position of each drone
+         * 
+         */
+        std::vector<std::array<float, 3>> local_positions_;
+
+        /**
+         * @brief Vector to store if each drone has reached its setpoint
+         * 
+         */
+        std::vector<bool> reached_setpoint_;
 
     public:
 
@@ -144,6 +198,20 @@ class Control : public rclcpp::Node{
          * @param param2 PX4 command parameter 2
          */
         void publish_vehicle_command(rclcpp::Publisher<VehicleCommand>::SharedPtr pub_, uint16_t command, float param1=0.0, float param2=0.0);
+
+        /**
+         * @brief Function to publish the default setpoints read from the yaml file
+         * 
+         */
+        void publish_default_setpoints();
+
+        /**
+         * @brief Function callback for the local position subscriber
+         * 
+         * @param drone_id Drone ID 
+         * @param msg VehicleLocalPosition message
+         */
+        void vehicle_local_position_callback(int drone_id, VehicleLocalPosition::SharedPtr msg);
 };
 
 }

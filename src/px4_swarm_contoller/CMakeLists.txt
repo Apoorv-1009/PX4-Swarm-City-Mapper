@@ -49,6 +49,7 @@ find_package(px4_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(ament_cmake_gtest REQUIRED)
 find_package(catch_ros2 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 # add subdirectories
 add_subdirectory(libs)
