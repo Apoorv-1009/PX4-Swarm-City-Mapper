@@ -6,6 +6,63 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+############################################################################
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(gazebo_ros REQUIRED)
+find_package(px4_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(ament_cmake_gtest REQUIRED)
+find_package(catch_ros2 REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/Control)
+############################################################################
+
+# Add executables
+add_executable(arm src/arming.cpp)
+ament_target_dependencies(arm px4_msgs rclcpp std_msgs)
+target_include_directories(arm PUBLIC Control)
+target_link_libraries(arm Control)
+
+############################################################################
+add_executable(level2_test test/test_level2.cpp)
+ament_target_dependencies(level2_test px4_msgs rclcpp std_msgs)
+target_link_libraries(level2_test catch_ros2::catch_ros2_with_node_main Control)
+
+
+############################################################################
+if(BUILD_TESTING)
+  set(TEST_FILE test/test.cpp
+  test/main.cpp)
+
+  #Add Gtest
+  ament_add_gtest(${PROJECT_NAME}_test ${TEST_FILE})
+  ament_target_dependencies(${PROJECT_NAME}_test px4_msgs rclcpp std_msgs)
+  target_include_directories(${PROJECT_NAME}_test PUBLIC include/px4_swarm_controller Control)
+  target_link_libraries(${PROJECT_NAME}_test Control)
+  target_compile_definitions(${PROJECT_NAME}_test PUBLIC "TEST_SRC_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/test/\"")
+
+  install(TARGETS ${PROJECT_NAME}_test
+    DESTINATION lib/${PROJECT_NAME})
+  # ament_lint_auto_find_test_dependencies()
+endif()
+
+############################################################################
+catch_ros2_add_integration_test (Level2_Integration_Test
+  LAUNCH_FILE integration_test.launch.yaml  # example in YAML
+)
+
+############################################################################
+# Install executables
+install(TARGETS
+  arm
+  level2_test
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+############################################################################
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -33,46 +90,18 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-# Enables testing for this directory and below
-enable_testing()
-include(GoogleTest)
-
-# Find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(gazebo_ros REQUIRED)
-find_package(px4_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(ament_cmake_gtest REQUIRED)
-find_package(catch_ros2 REQUIRED)
-find_package(yaml-cpp REQUIRED)
 
 # Add subdirectories
 add_subdirectory(libs)
-add_subdirectory(test)
-
-# Add executables
-add_executable(arm src/arming.cpp)
-ament_target_dependencies(arm px4_msgs rclcpp std_msgs)
-target_link_libraries(arm Control)
+# add_subdirectory(test)
 
 
-# Install executables
-install(TARGETS
-  arm
-  DESTINATION lib/${PROJECT_NAME}
-)
 
 # Install directories
 install(DIRECTORY 
   launch
   worlds
   libs
-  test
   config
   src
   DESTINATION share/${PROJECT_NAME}/
@@ -102,7 +131,6 @@ if(COVERAGE)
     message(WARNING "lcov or genhtml not found. Coverage report generation will not work.")
   endif()
 endif()
-
 
 install(PROGRAMS
   scripts/generate_coverage_report.bash

@@ -192,17 +192,21 @@ To launch the drones and take sweeps of the city:
 ros2 run px4_swarm_controller arm 
 ```
 
-# Running L1 tests
+# Running L1 and L2 tests
 ```bash
-# Switch to the root of the directory
-cd ~/PX4-Swarm-City-Mapper/
+# Build the package
+rm -rf build/ install/ log/                                                                
+colcon build --cmake-args -DCOVERAGE=1
 
-# Build with Debug and Coverage ON
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
+# Test the packages
+colcon test --packages-select px4_swarm_controller
 
-# Locally get test coverage
-cmake --build build --target coverage
+# Optionally, you can test px4_msgs as well, however this is not needed
+colcon test
 
-# Open coverage report in your browser
-open build/coverage_report/index.html
+# Run the tests and generate the coverage report
+ros2 run px4_swarm_controller generate_coverage_report.bash      
+
+# View the coverage reports
+open build/px4_swarm_controller/test_coverage/index.html 
 ```

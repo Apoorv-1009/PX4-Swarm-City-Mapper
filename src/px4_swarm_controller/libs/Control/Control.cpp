@@ -10,6 +10,7 @@
  */
 
 #include "Control.hpp"
+#include <yaml-cpp/node/node.h>
 
 ctrl::Control::Control() : Node("Control"){
 
@@ -17,6 +18,7 @@ ctrl::Control::Control() : Node("Control"){
 
     // Load the YAML file
     YAML::Node config = YAML::LoadFile("../../install/px4_swarm_controller/share/px4_swarm_controller/config/config.yaml");
+    // YAML::Node config = YAML::LoadFile("src/px4_swarm_controller/config/config.yaml");
 
     // Get the number of drones in the swarm
     num_drones_ = config["num_drones"].as<int>();
