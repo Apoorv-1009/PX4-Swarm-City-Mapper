@@ -84,6 +84,37 @@ if(COVERAGE)
   endif()
 endif()
 
+if(COVERAGE)
+  message("Enabling coverage")
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+  include(CodeCoverage)
+  # The following line come from cmake-modules/CodeCoverage.cmake
+  append_coverage_compiler_flags() # will add "--coverage" compilation flag
+  # Exclude certain directories from coverage analysis
+  # set(COVERAGE_EXCLUDES
+  #   ${PROJECT_BINARY_DIR}
+  #   )
+endif()
+
+# create targets for building code coverage reports
+if(COVERAGE)
+  if(UNIT_TEST_ALREADY_RAN)
+    unset(EXECUTABLE)          # don't run unit test again, just generate the coverage report
+  else()
+    set(EXECUTABLE ctest test/)   # what to run insdie the build directory?
+  endif()
+
+  # unit test coverage:
+  setup_target_for_coverage_lcov ( # use lcov to generate coverage report
+    NAME test_coverage             # target name
+    EXECUTABLE ${EXECUTABLE}
+    EXCLUDE
+      "libs/*"
+      "/usr/include/*"          # Don't analyze system headers
+      "/opt/*"                  # Don't analyze system headers
+    )
+endif()
+
 # Declares a dependency on GoogleTest which is downloaded from GitHub
 include(FetchContent)
 FetchContent_Declare(
@@ -133,9 +164,7 @@ if(COVERAGE)
 endif()
 
 install(PROGRAMS
-  scripts/generate_coverage_report.bash 
-  launch/px4_multi_sim.launch.py 
-  scripts/simulation_node.py
+  scripts/generate_coverage_report.bash
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

@@ -42,7 +42,8 @@ set -u                          # re-enable undefined variable check
 ##############################
 # 1. Build for test coverage
 ##############################
-colcon build --cmake-args -DCOVERAGE=1
+colcon build --packages-select px4_msgs 
+colcon build --packages-select px4_swarm_controller --cmake-args -DCOVERAGE=1
 set +u                          # stop checking undefined variable  
 source install/setup.bash
 set -u                          # re-enable undefined variable check
@@ -50,7 +51,8 @@ set -u                          # re-enable undefined variable check
 ##############################
 # 2. run all tests
 ##############################
-colcon test
+# colcon test
+colcon test --packages-select px4_swarm_controller
 
 ##############################
 # 3. get return status  (none-zero will cause the script to exit)

@@ -1,6 +1,6 @@
-[![codecov](https://codecov.io/gh/Apoorv-1009/PX4-Aerial-Swarm-Reconstruction/graph/badge.svg?token=QapVFaDHVu)](https://codecov.io/gh/Apoorv-1009/PX4-Aerial-Swarm-Reconstruction) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![codecov](https://codecov.io/gh/Apoorv-1009/PX4-Swarm-City-Mapper/graph/badge.svg?token=QapVFaDHVu)](https://codecov.io/gh/Apoorv-1009/PX4-Swarm-City-Mapper) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-# PX4 Swarm City Mapper
+# PX4-Aerial-Swarm-Reconstruction
 This project involves deploying multiple PX4 drones equipped with stereo cameras in a simulated city environment in Gazebo. The drones collaboratively map the city, generating a point cloud representation of the environment. The resulting point cloud is saved and can be visualized in RViz, providing a comprehensive 3D map of the simulated city.
 
 # Phase 0
@@ -40,7 +40,7 @@ source ~/.bashrc
 
 ```
 
-## Setting up PX4 Swarm City Mapper
+## Setting up PX4-Aerial-Swarm-Reconstruction
 This repository contains the custom world files for the city simulation, along with the launch files for spawning the world with `n` drones (max 255).
 
 ```bash
