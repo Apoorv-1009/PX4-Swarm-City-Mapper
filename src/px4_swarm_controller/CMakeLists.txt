@@ -133,7 +133,9 @@ if(COVERAGE)
 endif()
 
 install(PROGRAMS
-  scripts/generate_coverage_report.bash
+  scripts/generate_coverage_report.bash 
+  launch/px4_multi_sim.launch.py 
+  scripts/simulation_node.py
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

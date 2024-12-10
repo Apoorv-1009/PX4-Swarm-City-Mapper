@@ -33,7 +33,7 @@ def generate_launch_description():
 
     ld.add_action(
         Node(
-            package='final_project',
+            package='px4_swarm_controller',
             executable='simulation_node.py',
             name='simulation_node',
             parameters=[{'nb_vehicles': nb_drones,'initial_pose': initial_poses}]
