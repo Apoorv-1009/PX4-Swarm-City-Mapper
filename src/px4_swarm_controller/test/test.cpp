@@ -1,3 +1,14 @@
+/**
+ * @file test.cpp
+ * @author Mohammed Munawwar
+ * @brief C++ file for testing the Control node
+ * @version 0.1
+ * @date 2024-12-09
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include <gtest/gtest.h>
 #include <rclcpp/rclcpp.hpp>
 #include <px4_msgs/msg/offboard_control_mode.hpp>

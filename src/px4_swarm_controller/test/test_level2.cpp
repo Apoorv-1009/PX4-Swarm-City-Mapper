@@ -1,8 +1,12 @@
 /**
- * @file integration_test_control.cpp
- * @brief Integration test for Control class using Catch2
- * @version 0.2
- * @date 2024-12-08
+ * @file test_level2.cpp
+ * @author Mohammed Munawwar
+ * @brief C++ file for testing the Control package
+ * @version 0.1
+ * @date 2024-12-09
+ * 
+ * @copyright Copyright (c) 2024
+ * 
  */
 
 #include <catch_ros2/catch_ros2.hpp>
