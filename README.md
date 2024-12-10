@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/Apoorv-1009/PX4-Swarm-City-Mapper/graph/badge.svg?token=QapVFaDHVu)](https://codecov.io/gh/Apoorv-1009/PX4-Swarm-City-Mapper) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![codecov](https://codecov.io/gh/Apoorv-1009/PX4-Aerial-Swarm-Reconstruction/graph/badge.svg?token=QapVFaDHVu)](https://codecov.io/gh/Apoorv-1009/PX4-Aerial-Swarm-Reconstruction) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 # PX4 Swarm City Mapper
 This project involves deploying multiple PX4 drones equipped with stereo cameras in a simulated city environment in Gazebo. The drones collaboratively map the city, generating a point cloud representation of the environment. The resulting point cloud is saved and can be visualized in RViz, providing a comprehensive 3D map of the simulated city.
@@ -9,7 +9,7 @@ Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_N
 
 # Phase 1
 As a part of phase 1 of this project, we successfully launched **20 Iris quadcopters** in a custom city world in Gazebo. Each drone operates independently, and we are able to retrieve critical telemetry data through ROS 2 topics, including local position, IMU readings, and velocity. These topics enable real-time monitoring and control of the swarm, providing the foundations for advanced functionalities like collaborative mapping, trajectory planning, and obstacle avoidance in the next phase of the project. </br>
-<img src="screenshots/image.png" alt="Description of the screenshot" width="500"/>
+<img src="screenshots/grid_plan.jpeg" alt="Grid plan world" width="700"/>
 
 All documents pertaining to this phase can be found under `UML/initial` <br>
 Product Dev Notes: [Link](https://docs.google.com/document/d/1IhdOAMICzZZBzhB9_Nkyce7AI6Z4n4CMd4ubZWPyqKw/edit?usp=sharing) <br>
@@ -45,7 +45,7 @@ This repository contains the custom world files for the city simulation, along w
 
 ```bash
 # Clone this repository
-git clone https://github.com/Apoorv-1009/PX4-Swarm-City-Mapper.git
+git clone https://github.com/Apoorv-1009/PX4-Aerial-Swarm-Reconstruction.git
 ```
 
 ## Setting up PX4-Autopilot
@@ -68,8 +68,8 @@ pip install --user -U empy==3.3.4 pyros-genmsg setuptools
 # Change to the PX4-Autopilot directory
 cd PX4-Autopilot/
 
-# Build the SITL software
-make px4_sitl
+# Build the SITL software and Gazebo plugins
+make px4_sitl gazebo-classic
 ```
 ## Setting up the ROS-GZ bridge
 For getting camera topics, such as pointcloud, we need to setup a bridge between `Gazebo-Classic` and `ROS2`:
@@ -144,19 +144,19 @@ MicroXRCEAgent udp4 -p 8888
 To spawn our custom world, copy the `grid_plan.world` file into the `PX4-Autopilot` worlds directory
 ```bash
 # Copy the world to the PX4-Autopilot worlds/ directory
-cp ~/PX4-Swarm-City-Mapper/src/px4_swarm_controller/worlds/grid_plan.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
+cp ~/PX4-Aerial-Swarm-Reconstruction/src/px4_swarm_controller/worlds/grid_plan.world ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/
 ```
 
 We also need to change the `sitl_multiple_run.sh` file to spawn drones at the positions as described by the `config.yaml` file.
 ```bash
-cd ~/PX4-Swarm-City-Mapper/
+cd ~/PX4-Aerial-Swarm-Reconstruction/
 mv -i sitl_multiple_run.sh ~/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_multiple_run.sh
 ```
 
 # Building the Environment
 To build the workspace, go to the root of this package and run colcon build
 ```bash
-cd ~/PX4-Swarm-City-Mapper/
+cd ~/PX4-Aerial-Swarm-Reconstruction/
 colcon build
 
 # Make sure to source the workspace
@@ -168,10 +168,10 @@ The `px4 msgs` folder is needed to define custom message types for communication
 This package must be sourced and included in every ROS2 PX4 workspace, it is highly recommended to add this to your `~/.zshrc` or `~/.bashrc`
 ```bash
 # For ~/.zshrc:
-echo "source /PX4-Swarm-City-Mapper/install/local_setup.zsh" >> ~/.zshrc
+echo "source /PX4-Aerial-Swarm-Reconstruction/install/local_setup.zsh" >> ~/.zshrc
 source ~/.zshrc
 # For ~/.bashrc:
-echo "source /PX4-Swarm-City-Mapper/install/local_setup.bash" >> ~/.bashrc
+echo "source /PX4-Aerial-Swarm-Reconstruction/install/local_setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
